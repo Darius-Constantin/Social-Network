@@ -8,6 +8,25 @@ static const char *db_path = "users.db";
 static char **users;
 static uint16_t users_number;
 
+user_t *user_init(char *username)
+{
+	user_t *new_user = malloc(sizeof(*new_user));
+	DIE(!new_user, "new user allocation failed!");
+
+	new_user->username = calloc(strlen(username) + 1, sizeof(char));
+	new_user->user_id = get_user_id(username);
+	DIE(!new_user->username, "new user username allocation failed!");
+	strcpy(new_user->username, username);
+	new_user->posts = list_init(cmp_posts, NULL, NULL);
+
+	return new_user;
+}
+
+void *create_user_from_username(void *username)
+{
+	return user_init(username);
+}
+
 void init_users(void)
 {
 	FILE *users_db = fopen(db_path, "r");
@@ -49,4 +68,32 @@ char *get_user_name(uint16_t id)
 		return NULL;
 
 	return users[id];
+}
+
+unsigned int hash_username(void *username)
+{
+    unsigned int user_id = get_user_id((char *)username);
+	return hash_uint(&user_id);
+}
+
+void *cpy_username(void *user)
+{
+	char *username = ((user_t *)user)->username;
+	char *username_copy = calloc(strlen(username) + 1,
+								 sizeof(char));
+	DIE(!username_copy, "Username copy failed!");
+	strcpy(username_copy, username);
+	return username_copy;
+}
+
+int cmp_users(void *user1, void *user2)
+{
+	int user1_id = get_user_id(((user_t *)user1)->username);
+	int user2_id = get_user_id(((user_t *)user2)->username);
+
+	if (user1_id > user2_id)
+		return 1;
+	if (user1_id < user2_id)
+		return -1;
+	return 0;
 }
