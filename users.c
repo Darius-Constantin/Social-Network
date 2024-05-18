@@ -17,7 +17,8 @@ user_t *user_init(char *username)
 	new_user->user_id = get_user_id(username);
 	DIE(!new_user->username, "new user username allocation failed!");
 	strcpy(new_user->username, username);
-	new_user->posts = list_init(cmp_posts, NULL, NULL);
+	new_user->posts = list_init(cmp_posts, no_copy, get_post_id_from_post, NULL);
+	new_user->liked_posts = arr_ht_init(INIT_MAX_BUCKETS, hash_uint, cmp_posts, NULL);
 
 	return new_user;
 }
@@ -48,6 +49,8 @@ void init_users(void)
 		users[i] = malloc(size + 1);
 		strcpy(users[i], temp);
 	}
+
+	fclose(users_db);
 }
 
 uint16_t get_user_id(char *name)
@@ -86,14 +89,37 @@ void *cpy_username(void *user)
 	return username_copy;
 }
 
+int cmp_usernames(void *username1, void *username2)
+{
+	return strcmp((char *)username1, (char *)username2);
+}
+
 int cmp_users(void *user1, void *user2)
 {
-	int user1_id = get_user_id(((user_t *)user1)->username);
-	int user2_id = get_user_id(((user_t *)user2)->username);
+	int user1_id = ((user_t *)user1)->user_id;
+	int user2_id = ((user_t *)user2)->user_id;
 
 	if (user1_id > user2_id)
 		return 1;
 	if (user1_id < user2_id)
 		return -1;
 	return 0;
+}
+
+void *user_get_username(void *user)
+{
+    return ((user_t *)user)->username;
+}
+
+void *user_get_id(void *user)
+{
+	return &((user_t *)user)->user_id;
+}
+
+void free_users()
+{
+	for (unsigned int i = 0; i < users_number; i++) {
+		free(users[i]);
+	}
+	free(users);
 }

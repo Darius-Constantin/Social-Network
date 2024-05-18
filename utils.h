@@ -7,7 +7,8 @@
 #include <string.h>
 #include <stdint.h>
 
-#define INIT_MAX_BUCKETS 50
+#define MAX_COMMAND_LEN 200
+#define INIT_MAX_BUCKETS 550
 #define MAX_PEOPLE 550
 #define INFTY (MAX_PEOPLE + 1)
 
@@ -20,9 +21,16 @@
 		}															\
 	} while (0)
 
+typedef struct vector_t {
+	unsigned int len;
+	void *vector;
+} vector_t;
+
 unsigned int hash_uint(void *key);
 
 unsigned int hash_string(void *key);
+
+int cmp_uint(void *val1, void *val2);
 
 void *no_copy(void *data);
 

@@ -35,6 +35,9 @@ void queue_enqueue(queue_t *q, void *data)
 
 void queue_dequeue(queue_t *q)
 {
+    if (q->current_size == 0)
+        return;
+
     if (q->free_data)
         q->free_data(q->data + q->head * q->data_size);
     q->head = (q->head + 1) % q->queue_size;

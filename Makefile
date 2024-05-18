@@ -3,13 +3,13 @@ CFLAGS=-Wall -Wextra -g #-Werror # <- this last flag sucks!
 
 .PHONY: build clean
 
-all: build
+all: clean build
 
 build: friends posts feed
 
 # Any other object file that is needed for the other files
 # add it here, separated by space
-UTILS = utils.o queue.o array_hashtable.o node.o list.o graph.o users.o posts.o
+UTILS = utils.o queue.o array_hashtable.o node.o list.o graph.o social_manager.o users.o posts.o
 
 friends: $(UTILS) friends.o social_media_friends.o
 	$(CC) $(CFLAGS) -o $@ $^
@@ -52,6 +52,9 @@ users.o:
 
 posts.o:
 	$(CC) $(CFLAGS) -c -o $@ posts.c
+
+social_manager.o:
+	$(CC) $(CFLAGS) -c -o $@ social_manager.c
 
 clean:
 	rm -rf *.o friends posts feed

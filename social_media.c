@@ -7,20 +7,13 @@
 #include <string.h>
 
 #include "utils.h"
-#include "users.h"
 #include "friends.h"
 #include "posts.h"
 #include "feed.h"
-#include "social_manager.h"
 
 void init_tasks(social_manager_t *social_manager)
 {
-	social_manager->user_graph = graph_init(hash_username, cmp_users,
-									   		create_user_from_username,
-											no_copy, free);
-	social_manager->post_table = arr_ht_init(INIT_MAX_BUCKETS, hash_uint,
-											 cmp_posts);
-	social_manager->post_id = 1;
+	*social_manager = social_manager_init();
 }
 
 /**
@@ -39,21 +32,25 @@ int main(void)
 		input = fgets(input, MAX_COMMAND_LEN, stdin);
 
 		// If fgets returns null, we reached EOF
-		if (!input)
+		if (!input || !strncmp(input, "EXIT", strlen("EXIT")))
 			break;
 
 		#ifdef TASK_1
-		handle_input_friends(input);
+		handle_input_friends(input, &social_manager);
 		#endif
 
 		#ifdef TASK_2
-		handle_input_posts(input);
+		handle_input_posts(input, &social_manager);
 		#endif
 
 		#ifdef TASK_3
-		handle_input_feed(input);
+		// handle_input_feed(input, &social_manager);
 		#endif
 	}
+
+	social_manager_free_contents(social_manager);
+	free_users();
+	free(input);
 
 	return 0;
 }

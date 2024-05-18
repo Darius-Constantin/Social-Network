@@ -5,6 +5,7 @@
 #ifndef LIST_H
 #define LIST_H
 
+#include "utils.h"
 #include "node.h"
 
 typedef struct list_t {
@@ -13,11 +14,14 @@ typedef struct list_t {
     unsigned int length;
     int (*cmp)(void *, void *);
     void *(*cpy)(void *);
+    void *(*access_node_key)(void *);
     void (*free_data)(void *);
 } list_t;
 
+
 list_t *list_init(int (*cmp_function)(void *, void *),
                   void *(*cpy_function)(void *),
+                  void *(*access_node_key)(void *),
                   void (*free_data)(void *));
 
 void list_append_data(list_t *list, void *data);

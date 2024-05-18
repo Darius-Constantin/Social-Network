@@ -23,6 +23,15 @@ unsigned int hash_string(void *key)
     return hash;
 }
 
+int cmp_uint(void *val1, void *val2)
+{
+    if (*(unsigned int *)val1 > *(unsigned int *)val2)
+        return 1;
+    if (*(unsigned int *)val1 < *(unsigned int *)val2)
+        return -1;
+    return 0;
+}
+
 void *no_copy(void *data)
 {
     return data;

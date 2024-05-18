@@ -25,7 +25,7 @@ typedef struct queue_t {
 queue_t *queue_init(unsigned int size, size_t data_size,
                     void (*free_data)(void *));
 
-/// @brief A function for enqueueing an element in queue.
+/// @brief A function for enqueueing an element in the queue.
 /// @param q The queue where the element will be placed.
 /// @param data A pointer to the element which will be enqueued. The memory
 /// will be copied from the pointer!
@@ -37,7 +37,7 @@ void queue_dequeue(queue_t *q);
 
 /// @brief A function for retrieving the front of a queue.
 /// @param q The queue.
-/// @return A pointer to the data stored at th front of the queue.
+/// @return A pointer to the data stored at the front of the queue.
 void *queue_front(queue_t *q);
 
 /// @brief A function for checking if a queue is empty.

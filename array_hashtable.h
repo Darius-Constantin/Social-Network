@@ -7,7 +7,6 @@
 
 #include "utils.h"
 
-
 typedef struct array_hashtable_pair_t {
     unsigned int hash;
     void *key;
@@ -17,6 +16,7 @@ typedef struct array_hashtable_pair_t {
 typedef struct array_hashtable_t {
     unsigned int (*hash_key)(void *);
     int (*cmp)(void *, void *);
+    void (*free_data)(void *, void *);
     uint32_t number_of_buckets;
     uint32_t current_size;
     arr_ht_pair_t **buckets;
@@ -32,14 +32,15 @@ typedef struct array_hashtable_t {
 /// @return A pointer to the newly created hashtable.
 array_hashtable_t *arr_ht_init(unsigned int max_buckets,
                                unsigned int (*hash_key)(void *),
-                               int (*cmp)(void *, void *));
+                               int (*cmp)(void *, void *),
+                               void (*free_data)(void *, void *));
 
 /// @brief Completely frees a hashtable.
 /// @param ht A double pointer to the hashtable which will be freed. In the end,
 /// the value of variable will be set to NULL.
 /// @param free_data A pointer to a function reponsible for freeing the data
 /// stored inside an array_hashtable_pair_t (which is held by a bucket).
-void arr_ht_free(array_hashtable_t **ht, void (*free_data)(void *));
+void arr_ht_free(array_hashtable_t **ht);
 
 /// @brief A function for putting/inserting a new value inside an array-based
 /// hashtable. Follows the Robin Hood hashing principle, a type of linear

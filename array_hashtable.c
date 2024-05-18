@@ -4,17 +4,19 @@
 
 #include "array_hashtable.h"
 
-#define IS_EMPTY(x) (x == NULL || ((x)->key == NULL && (x)->value == NULL))
+#define IS_EMPTY(x) ((x) == NULL || ((x)->key == NULL && (x)->value == NULL))
 
 array_hashtable_t *arr_ht_init(unsigned int max_buckets,
                                unsigned int (*hash_key)(void *),
-                               int (*cmp)(void *, void *))
+                               int (*cmp)(void *, void *),
+                               void (*free_data)(void *, void *))
 {
     array_hashtable_t *new_hashtable = malloc(sizeof(*new_hashtable));
     DIE(!new_hashtable, "new array_hashtable allocation failed");
 
     new_hashtable->hash_key = hash_key;
     new_hashtable->cmp = cmp;
+    new_hashtable->free_data = free_data;
     new_hashtable->number_of_buckets = max_buckets;
     new_hashtable->current_size = 0;
     new_hashtable->buckets = calloc(max_buckets,
@@ -23,11 +25,11 @@ array_hashtable_t *arr_ht_init(unsigned int max_buckets,
     return new_hashtable;
 }
 
-void arr_ht_free(array_hashtable_t **ht, void (*free_data)(void *))
+void arr_ht_free(array_hashtable_t **ht)
 {
     for (uint32_t i = 0; i < (*ht)->number_of_buckets; i++) {
-        if (free_data)
-            free_data((*ht)->buckets[i]);
+        if ((*ht)->free_data && !IS_EMPTY((*ht)->buckets[i]))
+            (*ht)->free_data((*ht)->buckets[i]->key, (*ht)->buckets[i]->value);
         free((*ht)->buckets[i]);
     }
 
@@ -44,6 +46,8 @@ arr_ht_pair_t *arr_ht_put(array_hashtable_t *ht,
                           void *key, void *value)
 {
     arr_ht_pair_t *current_pair = malloc(sizeof(*current_pair));
+    DIE(!current_pair, "current pair allocation failed!");
+
     current_pair->hash = ht->hash_key(key) % ht->number_of_buckets;
     current_pair->key = key;
     current_pair->value = value;
@@ -57,8 +61,11 @@ arr_ht_pair_t *arr_ht_put(array_hashtable_t *ht,
             return ht->buckets[current_index];
         }
 
-        if (ht->cmp(ht->buckets[current_index]->key, key) == 0)
+        if (ht->cmp(ht->buckets[current_index]->key, key) == 0) {
+            free(current_pair);
+            ht->free_data(key, value);
             return ht->buckets[current_index];
+        }
 
         uint32_t tested_probe;
         if (current_index >= ht->buckets[current_index]->hash) {
